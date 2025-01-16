@@ -77,11 +77,12 @@ class CartaAPI:
 
         return all_items
 
-    def get_auth_data(self) -> dict[str, str]:
+    def get_auth_data(self, debug: bool = False) -> dict[str, str]:
         """Generate the OAuth authorization URL with PKCE."""
         state = secrets.token_urlsafe(4)
-        st.write("Debug - Generating Auth URL:")
-        st.write(f"Generated State: {state}")
+        if debug:
+            st.write("Debug - Generating Auth URL:")
+            st.write(f"Generated State: {state}")
 
         params = {
             "response_type": "code",
@@ -95,10 +96,12 @@ class CartaAPI:
             "state": state,
         }
 
-    def exchange_code_for_token(self, code: str, state: Optional[str] = None) -> Dict:
+
+    def exchange_code_for_token(self, code: str, state: Optional[str] = None, debug: bool = False) -> Dict:
         """Exchange authorization code for access token."""
-        st.write("Debug - Token Exchange:")
-        st.write("Received State:", state)
+        if debug:
+            st.write("Debug - Token Exchange:")
+            st.write("Received State:", state)
         auth: HTTPBasicAuth = HTTPBasicAuth(self.client_id, self.client_secret)
 
         data = {
@@ -108,15 +111,17 @@ class CartaAPI:
             "client_id": self.client_id,
         }
 
-        st.write("Debug - Token Exchange Request:")
-        st.write("URL:", self.TOKEN_URL)
-        st.write("Data:", {k: v if k != "client_secret" else "***" for k, v in data.items()})
+        if debug:
+            st.write("Debug - Token Exchange Request:")
+            st.write("URL:", self.TOKEN_URL)
+            st.write("Data:", {k: v if k != "client_secret" else "***" for k, v in data.items()})
 
         response = requests.post(self.TOKEN_URL, data=data, auth=auth)
         if not response.ok:
-            st.error(f"Token exchange failed: {response.status_code}")
-            st.error(f"Response: {response.text}")
-        response.raise_for_status()
+            if debug:
+                st.error(f"Token exchange failed: {response.status_code}")
+                st.error(f"Response: {response.text}")
+            response.raise_for_status()
         return response.json()
 
     def list_portfolio_issuers(self, portfolio_id: str, page_size: int = 50) -> List[Dict]:
