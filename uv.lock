@@ -63,21 +63,29 @@ name = "carta-example-app"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "pytest" },
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "streamlit" },
     { name = "streamlit-oauth" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
     { name = "watchdog" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "pytest", specifier = ">=8.3.4" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "requests", specifier = ">=2.31.0" },
     { name = "streamlit", specifier = ">=1.41.0" },
     { name = "streamlit-oauth", specifier = ">=0.1.14" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3.4" },
     { name = "watchdog", specifier = ">=6.0.0" },
 ]
 

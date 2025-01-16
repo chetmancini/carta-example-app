@@ -7,7 +7,11 @@ dependencies = [
     "streamlit>=1.41.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
-    "watchdog>=6.0.0",
     "streamlit-oauth>=0.1.14",
+]
+
+[dependency-groups]
+dev = [
     "pytest>=8.3.4",
+    "watchdog>=6.0.0",
 ]
