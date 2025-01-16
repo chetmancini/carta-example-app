@@ -1,4 +1,5 @@
 """Tests for securities data formatting functions."""
+
 import pandas as pd
 import pytest
 from securities import (
@@ -6,8 +7,9 @@ from securities import (
     format_option_grants_data,
     format_rsus_data,
     format_rsas_data,
-    format_all_securities_data
+    format_all_securities_data,
 )
+
 
 @pytest.fixture
 def sample_certificate():
@@ -17,8 +19,9 @@ def sample_certificate():
         "shareClassName": "Common Stock",
         "quantity": {"value": 1000},
         "issueDate": {"value": "2024-01-01"},
-        "pricePerShare": {"amount": {"value": "10.50"}}
+        "pricePerShare": {"amount": {"value": "10.50"}},
     }
+
 
 @pytest.fixture
 def sample_option_grant():
@@ -31,8 +34,9 @@ def sample_option_grant():
         "exercisePrice": {"amount": {"value": "5.00"}},
         "totalShares": {"value": 2000},
         "vestedShares": {"value": 500},
-        "unvestedShares": {"value": 1500}
+        "unvestedShares": {"value": 1500},
     }
+
 
 @pytest.fixture
 def sample_rsu():
@@ -43,8 +47,9 @@ def sample_rsu():
         "grantDate": {"value": "2024-01-01"},
         "totalShares": {"value": 1000},
         "vestedShares": {"value": 250},
-        "unvestedShares": {"value": 750}
+        "unvestedShares": {"value": 750},
     }
+
 
 @pytest.fixture
 def sample_rsa():
@@ -55,8 +60,9 @@ def sample_rsa():
         "grantDate": {"value": "2024-01-01"},
         "totalShares": {"value": 1000},
         "vestedShares": {"value": 250},
-        "unvestedShares": {"value": 750}
+        "unvestedShares": {"value": 750},
     }
+
 
 def test_format_certificates_data(sample_certificate):
     """Test certificate data formatting."""
@@ -70,6 +76,7 @@ def test_format_certificates_data(sample_certificate):
     assert row["Issue Date"] == "2024-01-01"
     assert row["Price Per Share"] == "$10.50"
 
+
 def test_format_certificates_data_empty():
     """Test certificate data formatting with empty input."""
     df = format_certificates_data([])
@@ -79,8 +86,9 @@ def test_format_certificates_data_empty():
         "Share Class",
         "Quantity",
         "Issue Date",
-        "Price Per Share"
+        "Price Per Share",
     ]
+
 
 def test_format_option_grants_data(sample_option_grant):
     """Test option grant data formatting."""
@@ -97,6 +105,7 @@ def test_format_option_grants_data(sample_option_grant):
     assert row["Vested Shares"] == 500
     assert row["Unvested Shares"] == 1500
 
+
 def test_format_option_grants_data_empty():
     """Test option grant data formatting with empty input."""
     df = format_option_grants_data([])
@@ -109,8 +118,9 @@ def test_format_option_grants_data_empty():
         "Exercise Price",
         "Total Shares",
         "Vested Shares",
-        "Unvested Shares"
+        "Unvested Shares",
     ]
+
 
 def test_format_rsus_data(sample_rsu):
     """Test RSU data formatting."""
@@ -125,6 +135,7 @@ def test_format_rsus_data(sample_rsu):
     assert row["Vested Shares"] == 250
     assert row["Unvested Shares"] == 750
 
+
 def test_format_rsus_data_empty():
     """Test RSU data formatting with empty input."""
     df = format_rsus_data([])
@@ -135,8 +146,9 @@ def test_format_rsus_data_empty():
         "Grant Date",
         "Total Shares",
         "Vested Shares",
-        "Unvested Shares"
+        "Unvested Shares",
     ]
+
 
 def test_format_rsas_data(sample_rsa):
     """Test RSA data formatting."""
@@ -151,6 +163,7 @@ def test_format_rsas_data(sample_rsa):
     assert row["Vested Shares"] == 250
     assert row["Unvested Shares"] == 750
 
+
 def test_format_rsas_data_empty():
     """Test RSA data formatting with empty input."""
     df = format_rsas_data([])
@@ -161,10 +174,13 @@ def test_format_rsas_data_empty():
         "Grant Date",
         "Total Shares",
         "Vested Shares",
-        "Unvested Shares"
+        "Unvested Shares",
     ]
 
-def test_format_all_securities_data(sample_certificate, sample_option_grant, sample_rsu, sample_rsa):
+
+def test_format_all_securities_data(
+    sample_certificate, sample_option_grant, sample_rsu, sample_rsa
+):
     """Test combined securities data formatting."""
     df = format_all_securities_data(
         certificates=[sample_certificate],
@@ -172,7 +188,7 @@ def test_format_all_securities_data(sample_certificate, sample_option_grant, sam
         rsus=[sample_rsu],
         rsas=[sample_rsa],
         portfolio_id="PORT-123",
-        issuer_id="ISS-456"
+        issuer_id="ISS-456",
     )
 
     assert len(df) == 4
@@ -229,6 +245,7 @@ def test_format_all_securities_data(sample_certificate, sample_option_grant, sam
     assert pd.isna(rsa_row["Exercise Price"])
     assert rsa_row["Vested Shares"] == 250
 
+
 def test_format_all_securities_data_empty():
     """Test combined securities data formatting with empty inputs."""
     df = format_all_securities_data(
@@ -237,7 +254,7 @@ def test_format_all_securities_data_empty():
         rsus=[],
         rsas=[],
         portfolio_id="PORT-123",
-        issuer_id="ISS-456"
+        issuer_id="ISS-456",
     )
 
     assert len(df) == 0
@@ -255,8 +272,9 @@ def test_format_all_securities_data_empty():
         "Exercise Price",
         "Total Shares",
         "Vested Shares",
-        "Unvested Shares"
+        "Unvested Shares",
     ]
+
 
 def test_format_all_securities_data_missing_fields():
     """Test combined securities data formatting with missing fields."""
@@ -271,7 +289,7 @@ def test_format_all_securities_data_missing_fields():
         rsus=[rsu],
         rsas=[rsa],
         portfolio_id="PORT-123",
-        issuer_id="ISS-456"
+        issuer_id="ISS-456",
     )
 
     assert len(df) == 4

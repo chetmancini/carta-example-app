@@ -1,18 +1,17 @@
-from hashlib import sha256
 import os
 import secrets
-import base64
 import requests
 import streamlit as st
 from urllib.parse import urlencode
 from typing import Dict, Optional, List
 from requests.auth import HTTPBasicAuth
 
+
 class CartaAPI:
-    AUTH_URL = 'https://login.playground.carta.team/o/authorize'
-    TOKEN_URL = 'https://login.playground.carta.team/o/access_token/'
-    API_BASE_URL = 'https://api.playground.carta.team'
-    SCOPES = ['read_portfolio_securities', 'read_portfolio_info']
+    AUTH_URL = "https://login.playground.carta.team/o/authorize"
+    TOKEN_URL = "https://login.playground.carta.team/o/access_token/"
+    API_BASE_URL = "https://api.playground.carta.team"
+    SCOPES = ["read_portfolio_securities", "read_portfolio_info"]
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
         self.client_id = client_id
@@ -35,15 +34,15 @@ class CartaAPI:
         st.write(f"Generated State: {state}")
 
         params = {
-            'response_type': 'code',
-            'client_id': self.client_id,
-            'scope': ' '.join(self.SCOPES),
-            'redirect_uri': self.redirect_uri,
-            'state': state,
+            "response_type": "code",
+            "client_id": self.client_id,
+            "scope": " ".join(self.SCOPES),
+            "redirect_uri": self.redirect_uri,
+            "state": state,
         }
         return {
-            'auth_url': f"{self.AUTH_URL}?{urlencode(params)}",
-            'state': state,
+            "auth_url": f"{self.AUTH_URL}?{urlencode(params)}",
+            "state": state,
         }
 
     def exchange_code_for_token(self, code: str, state: Optional[str] = None) -> Dict:
@@ -53,15 +52,17 @@ class CartaAPI:
         auth: HTTPBasicAuth = HTTPBasicAuth(self.client_id, self.client_secret)
 
         data = {
-            'grant_type': 'authorization_code',
-            'code': code,
-            'redirect_uri': self.redirect_uri,
-            'client_id': self.client_id,
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": self.redirect_uri,
+            "client_id": self.client_id,
         }
 
         st.write("Debug - Token Exchange Request:")
         st.write("URL:", self.TOKEN_URL)
-        st.write("Data:", {k: v if k != 'client_secret' else '***' for k, v in data.items()})
+        st.write(
+            "Data:", {k: v if k != "client_secret" else "***" for k, v in data.items()}
+        )
 
         response = requests.post(self.TOKEN_URL, data=data, auth=auth)
         if not response.ok:
@@ -76,11 +77,13 @@ class CartaAPI:
             raise ValueError("Access token not set. Please authenticate first.")
 
         return {
-            'Authorization': f'Bearer {self._access_token}',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {self._access_token}",
+            "Accept": "application/json",
         }
 
-    def list_portfolio_issuers(self, portfolio_id: str, page_size: int = 50) -> List[Dict]:
+    def list_portfolio_issuers(
+        self, portfolio_id: str, page_size: int = 50
+    ) -> List[Dict]:
         """
         Fetch all issuers in a portfolio with pagination support.
 
@@ -100,35 +103,32 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers",
                 headers=self._get_headers(),
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'issuers' in data:
-                all_issuers.extend(data['issuers'])
+            if "issuers" in data:
+                all_issuers.extend(data["issuers"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
         return all_issuers
 
     def get_portfolio_certificates(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
+        self, portfolio_id: str, issuer_id: str, page_size: int = 50
     ) -> List[Dict]:
         """
         Fetch all certificates for a portfolio issuer with pagination support.
@@ -150,25 +150,25 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/certificates",
                 headers=self._get_headers(),
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'certificates' in data:
-                all_certificates.extend(data['certificates'])
+            if "certificates" in data:
+                all_certificates.extend(data["certificates"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
@@ -193,35 +193,32 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios",
                 headers=self._get_headers(),
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'portfolios' in data:
-                all_portfolios.extend(data['portfolios'])
+            if "portfolios" in data:
+                all_portfolios.extend(data["portfolios"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
         return all_portfolios
 
     def list_option_grants(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
+        self, portfolio_id: str, issuer_id: str, page_size: int = 50
     ) -> List[Dict]:
         """
         Fetch all option grants for a portfolio issuer with pagination support.
@@ -244,35 +241,32 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/optionGrants",
                 headers=self._get_headers(),
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'optionGrants' in data:
-                all_option_grants.extend(data['optionGrants'])
+            if "optionGrants" in data:
+                all_option_grants.extend(data["optionGrants"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
         return all_option_grants
 
     def list_restricted_stock_units(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
+        self, portfolio_id: str, issuer_id: str, page_size: int = 50
     ) -> List[Dict]:
         """
         Fetch all restricted stock units (RSUs) for a portfolio issuer with pagination support.
@@ -293,8 +287,8 @@ class CartaAPI:
             raise ValueError("Access token not set. Please authenticate first.")
 
         headers = {
-            'Authorization': f'Bearer {self._access_token}',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {self._access_token}",
+            "Accept": "application/json",
         }
 
         all_rsus = []
@@ -302,35 +296,32 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/restrictedStockUnits",
                 headers=headers,
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'restrictedStockUnits' in data:
-                all_rsus.extend(data['restrictedStockUnits'])
+            if "restrictedStockUnits" in data:
+                all_rsus.extend(data["restrictedStockUnits"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
         return all_rsus
 
     def list_restricted_stock_awards(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
+        self, portfolio_id: str, issuer_id: str, page_size: int = 50
     ) -> List[Dict]:
         """
         Fetch all restricted stock awards (RSAs) for a portfolio issuer with pagination support.
@@ -351,8 +342,8 @@ class CartaAPI:
             raise ValueError("Access token not set. Please authenticate first.")
 
         headers = {
-            'Authorization': f'Bearer {self._access_token}',
-            'Accept': 'application/json'
+            "Authorization": f"Bearer {self._access_token}",
+            "Accept": "application/json",
         }
 
         all_rsas = []
@@ -360,35 +351,36 @@ class CartaAPI:
 
         while True:
             # Build query parameters
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             # Make API request
             response = requests.get(
                 f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/restrictedStockAwards",
                 headers=headers,
-                params=params
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
 
             # Add results to our collection
-            if 'restrictedStockAwards' in data:
-                all_rsas.extend(data['restrictedStockAwards'])
+            if "restrictedStockAwards" in data:
+                all_rsas.extend(data["restrictedStockAwards"])
 
             # Check if there are more pages
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
         return all_rsas
 
+
 def create_carta_client() -> CartaAPI:
     """Create a CartaAPI instance using environment variables."""
-    client_id = os.getenv('CARTA_CLIENT_ID')
-    client_secret = os.getenv('CARTA_CLIENT_SECRET')
-    redirect_uri = os.getenv('CARTA_REDIRECT_URI')
+    client_id = os.getenv("CARTA_CLIENT_ID")
+    client_secret = os.getenv("CARTA_CLIENT_SECRET")
+    redirect_uri = os.getenv("CARTA_REDIRECT_URI")
 
     if not all([client_id, client_secret, redirect_uri]):
         raise ValueError(
@@ -397,7 +389,5 @@ def create_carta_client() -> CartaAPI:
         )
 
     return CartaAPI(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri
+        client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri
     )
