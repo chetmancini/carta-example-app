@@ -195,9 +195,7 @@ def format_all_securities_data(
                 "Share Class": cert.get("shareClassName"),
                 "Quantity": cert.get("quantity", {}).get("value"),
                 "Issue Date": cert.get("issueDate", {}).get("value"),
-                "Price Per Share": cert.get("pricePerShare", {})
-                .get("amount", {})
-                .get("value"),
+                "Price Per Share": cert.get("pricePerShare", {}).get("amount", {}).get("value"),
                 "Grant Date": None,
                 "Expiration Date": None,
                 "Exercise Price": None,
@@ -221,9 +219,7 @@ def format_all_securities_data(
                 "Price Per Share": None,
                 "Grant Date": grant.get("grantDate", {}).get("value"),
                 "Expiration Date": grant.get("expirationDate", {}).get("value"),
-                "Exercise Price": grant.get("exercisePrice", {})
-                .get("amount", {})
-                .get("value"),
+                "Exercise Price": grant.get("exercisePrice", {}).get("amount", {}).get("value"),
                 "Total Shares": grant.get("totalShares", {}).get("value"),
                 "Vested Shares": grant.get("vestedShares", {}).get("value"),
                 "Unvested Shares": grant.get("unvestedShares", {}).get("value"),

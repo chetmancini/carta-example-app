@@ -178,9 +178,7 @@ def test_format_rsas_data_empty():
     ]
 
 
-def test_format_all_securities_data(
-    sample_certificate, sample_option_grant, sample_rsu, sample_rsa
-):
+def test_format_all_securities_data(sample_certificate, sample_option_grant, sample_rsu, sample_rsa):
     """Test combined securities data formatting."""
     df = format_all_securities_data(
         certificates=[sample_certificate],
