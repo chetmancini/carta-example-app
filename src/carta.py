@@ -1,20 +1,19 @@
-from hashlib import sha256
 import os
 import secrets
-import base64
 import requests
 import streamlit as st
 from urllib.parse import urlencode
-from typing import Dict, Optional, List, TypeVar, Callable
+from typing import Dict, Optional, List, TypeVar
 from requests.auth import HTTPBasicAuth
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class CartaAPI:
-    AUTH_URL = 'https://login.playground.carta.team/o/authorize'
-    TOKEN_URL = 'https://login.playground.carta.team/o/access_token/'
-    API_BASE_URL = 'https://api.playground.carta.team'
-    SCOPES = ['read_portfolio_securities', 'read_portfolio_info']
+    AUTH_URL = "https://login.playground.carta.team/o/authorize"
+    TOKEN_URL = "https://login.playground.carta.team/o/access_token/"
+    API_BASE_URL = "https://api.playground.carta.team"
+    SCOPES = ["read_portfolio_securities", "read_portfolio_info"]
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
         self.client_id = client_id
@@ -35,17 +34,9 @@ class CartaAPI:
         if not self._access_token:
             raise ValueError("Access token not set. Please authenticate first.")
 
-        return {
-            'Authorization': f'Bearer {self._access_token}',
-            'Accept': 'application/json'
-        }
+        return {"Authorization": f"Bearer {self._access_token}", "Accept": "application/json"}
 
-    def _paginate(
-        self,
-        url: str,
-        response_key: str,
-        page_size: int = 50
-    ) -> List[Dict]:
+    def _paginate(self, url: str, response_key: str, page_size: int = 50) -> List[Dict]:
         """
         Generic pagination function for Carta API endpoints.
 
@@ -69,9 +60,9 @@ class CartaAPI:
         next_page_token = None
 
         while True:
-            params = {'pageSize': page_size}
+            params = {"pageSize": page_size}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
 
             response = requests.get(url, headers=headers, params=params)
             response.raise_for_status()
@@ -80,7 +71,7 @@ class CartaAPI:
             if response_key in data:
                 all_items.extend(data[response_key])
 
-            next_page_token = data.get('nextPageToken')
+            next_page_token = data.get("nextPageToken")
             if not next_page_token:
                 break
 
@@ -93,15 +84,15 @@ class CartaAPI:
         st.write(f"Generated State: {state}")
 
         params = {
-            'response_type': 'code',
-            'client_id': self.client_id,
-            'scope': ' '.join(self.SCOPES),
-            'redirect_uri': self.redirect_uri,
-            'state': state,
+            "response_type": "code",
+            "client_id": self.client_id,
+            "scope": " ".join(self.SCOPES),
+            "redirect_uri": self.redirect_uri,
+            "state": state,
         }
         return {
-            'auth_url': f"{self.AUTH_URL}?{urlencode(params)}",
-            'state': state,
+            "auth_url": f"{self.AUTH_URL}?{urlencode(params)}",
+            "state": state,
         }
 
     def exchange_code_for_token(self, code: str, state: Optional[str] = None) -> Dict:
@@ -111,15 +102,15 @@ class CartaAPI:
         auth: HTTPBasicAuth = HTTPBasicAuth(self.client_id, self.client_secret)
 
         data = {
-            'grant_type': 'authorization_code',
-            'code': code,
-            'redirect_uri': self.redirect_uri,
-            'client_id': self.client_id,
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": self.redirect_uri,
+            "client_id": self.client_id,
         }
 
         st.write("Debug - Token Exchange Request:")
         st.write("URL:", self.TOKEN_URL)
-        st.write("Data:", {k: v if k != 'client_secret' else '***' for k, v in data.items()})
+        st.write("Data:", {k: v if k != "client_secret" else "***" for k, v in data.items()})
 
         response = requests.post(self.TOKEN_URL, data=data, auth=auth)
         if not response.ok:
@@ -146,12 +137,7 @@ class CartaAPI:
         url = f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers"
         return self._paginate(url, "issuers", page_size)
 
-    def get_portfolio_certificates(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
-    ) -> List[Dict]:
+    def get_portfolio_certificates(self, portfolio_id: str, issuer_id: str, page_size: int = 50) -> List[Dict]:
         """
         Fetch all certificates for a portfolio issuer with pagination support.
 
@@ -187,12 +173,7 @@ class CartaAPI:
         url = f"{self.API_BASE_URL}/v1alpha1/portfolios"
         return self._paginate(url, "portfolios", page_size)
 
-    def list_option_grants(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
-    ) -> List[Dict]:
+    def list_option_grants(self, portfolio_id: str, issuer_id: str, page_size: int = 50) -> List[Dict]:
         """
         Fetch all option grants for a portfolio issuer with pagination support.
 
@@ -211,12 +192,7 @@ class CartaAPI:
         url = f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/optionGrants"
         return self._paginate(url, "optionGrants", page_size)
 
-    def list_restricted_stock_units(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
-    ) -> List[Dict]:
+    def list_restricted_stock_units(self, portfolio_id: str, issuer_id: str, page_size: int = 50) -> List[Dict]:
         """
         Fetch all restricted stock units (RSUs) for a portfolio issuer with pagination support.
 
@@ -235,12 +211,7 @@ class CartaAPI:
         url = f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/restrictedStockUnits"
         return self._paginate(url, "restrictedStockUnits", page_size)
 
-    def list_restricted_stock_awards(
-        self,
-        portfolio_id: str,
-        issuer_id: str,
-        page_size: int = 50
-    ) -> List[Dict]:
+    def list_restricted_stock_awards(self, portfolio_id: str, issuer_id: str, page_size: int = 50) -> List[Dict]:
         """
         Fetch all restricted stock awards (RSAs) for a portfolio issuer with pagination support.
 
@@ -259,11 +230,12 @@ class CartaAPI:
         url = f"{self.API_BASE_URL}/v1alpha1/portfolios/{portfolio_id}/issuers/{issuer_id}/restrictedStockAwards"
         return self._paginate(url, "restrictedStockAwards", page_size)
 
+
 def create_carta_client() -> CartaAPI:
     """Create a CartaAPI instance using environment variables."""
-    client_id = os.getenv('CARTA_CLIENT_ID')
-    client_secret = os.getenv('CARTA_CLIENT_SECRET')
-    redirect_uri = os.getenv('CARTA_REDIRECT_URI')
+    client_id = os.getenv("CARTA_CLIENT_ID")
+    client_secret = os.getenv("CARTA_CLIENT_SECRET")
+    redirect_uri = os.getenv("CARTA_REDIRECT_URI")
 
     if not all([client_id, client_secret, redirect_uri]):
         raise ValueError(
@@ -271,8 +243,4 @@ def create_carta_client() -> CartaAPI:
             "Please set CARTA_CLIENT_ID, CARTA_CLIENT_SECRET, and CARTA_REDIRECT_URI"
         )
 
-    return CartaAPI(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=redirect_uri
-    )
+    return CartaAPI(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
