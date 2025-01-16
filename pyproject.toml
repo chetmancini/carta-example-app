@@ -1,0 +1,13 @@
+[project]
+name = "carta-example-app"
+version = "0.1.0"
+description = "Streamlit app to display Carta portfolio data"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.41.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "watchdog>=6.0.0",
+    "streamlit-oauth>=0.1.14",
+    "pytest>=8.3.4",
+]
