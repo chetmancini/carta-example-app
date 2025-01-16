@@ -1,7 +1,7 @@
 .PHONY: test run lint format dev dev-watch
 
 test:
-	uv run pytest test*.py
+	uv run pytest tests/
 
 run:
 	uv run streamlit run app.py
